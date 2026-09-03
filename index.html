@@ -1,0 +1,211 @@
+<!DOCTYPE html>  
+<html lang="ko">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>청첩장 모임 진행률 대시보드</title>  
+      
+    <!-- FullCalendar CDN -->  
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>  
+      
+    <style>  
+        :root {  
+            --primary-color: #ff8fab;  
+            --bg-color: #fdfbfb;  
+            --card-bg: #ffffff;  
+        }
+
+        body {  
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;  
+            background-color: var(--bg-color);  
+            margin: 0;  
+            padding: 20px;  
+            display: flex;  
+            flex-direction: column;  
+            align-items: center;  
+        }
+
+        #dashboard-container {  
+            width: 90%;  
+            max-width: 1100px;  
+            background: var(--card-bg);  
+            padding: 30px;  
+            border-radius: 20px;  
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);  
+        }
+
+        h1 {  
+            text-align: center;  
+            color: #444;  
+            margin-bottom: 30px;  
+        }
+
+        /* 진행률 섹션 스타일 */  
+        .progress-section {  
+            text-align: center;  
+            margin-bottom: 40px;  
+            padding: 20px;  
+            background: #fff5f7;  
+            border-radius: 15px;  
+        }
+
+        .progress-text {  
+            font-size: 1.2rem;  
+            font-weight: bold;  
+            margin-bottom: 10px;  
+            color: #555;  
+        }
+
+        .progress-bar-container {  
+            width: 100%;  
+            height: 25px;  
+            background-color: #e0e0e0;  
+            border-radius: 12.5px;  
+            overflow: hidden;  
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);  
+        }
+
+        .progress-bar-fill {  
+            height: 100%;  
+            width: 0%;  
+            background: linear-gradient(90deg, #ff8fab 0%, #ffb3c1 100%);  
+            transition: width 1s ease-in-out;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            color: white;  
+            font-size: 0.9rem;  
+            font-weight: bold;  
+        }
+
+        /* 캘린더 스타일 */  
+        #calendar {  
+            margin-top: 20px;  
+        }
+
+        .fc-event {  
+            cursor: pointer;  
+            border: none !important;  
+            background-color: var(--primary-color) !important;  
+            padding: 2px 5px;  
+        }  
+    </style>  
+</head>  
+<body>
+
+    <div id="dashboard-container">  
+        <h1>💌 청첩장 모임 진행 현황</h1>
+
+        <!-- 진행률 표시 영역 -->  
+        <div class="progress-section">  
+            <div class="progress-text">  
+                전체 일정 <span id="total-count">0</span>건 중 <span id="completed-count">0</span>건 완료  
+            </div>  
+            <div class="progress-bar-container">  
+                <div id="progress-fill" class="progress-bar-fill">0%</div>  
+            </div>  
+        </div>
+
+        <!-- 캘린더 표시 영역 -->  
+        <div id="calendar"></div>  
+    </div>
+
+    <script>  
+        document.addEventListener('DOMContentLoaded', function() {  
+            // 1. 일정 데이터 설정 (여기에 일정을 추가하세요)  
+            const events = [  
+                { title: '대학친구(태규민성)', start: '2026-07-12', color: '#ff8fab' },  
+                { title: '몽골 동행', start: '2026-07-12', color: '#ff8fab' },  
+                { title: '과 후배(가현성아)', start: '2026-07-17', color: '#ff8fab' },  
+                { title: '글앤총 피플', start: '2026-07-22', color: '#ff8fab' },  
+                { title: '과 남자동기', start: '2026-07-23', color: '#ff8fab' },  
+                { title: '카트 후배(채은)', start: '2026-07-24', color: '#ff8fab' },  
+                { title: '카트 수원', start: '2026-07-24', color: '#ff8fab' },  
+                { title: '인사동기(재영현수)', start: '2026-07-27', color: '#ff8fab' },  
+                { title: '인턴 합동청모', start: '2026-08-01', color: '#ff8fab' },  
+                { title: '대학선배(창배)', start: '2026-08-02', color: '#ff8fab' },
+                { title: '비상대책회의', start: '2026-08-04', color: '#ff8fab' },
+                { title: '채티 1차', start: '2026-08-05', color: '#ff8fab' },
+                { title: '인사 미팅모임', start: '2026-08-06', color: '#ff8fab' },
+                { title: '채용파트', start: '2026-08-12', color: '#ff8fab' },
+                { title: '카트 서울', start: '2026-08-14', color: '#ff8fab' },
+                { title: '초등학교', start: '2026-08-15', color: '#ff8fab' },
+                { title: '오사클', start: '2026-08-15', color: '#ff8fab' },
+                { title: '글앤총 육휴 언니들', start: '2026-08-15', color: '#ff8fab' },                
+                { title: '탁구동아리', start: '2026-08-21', color: '#ff8fab' },
+                { title: '재수학원', start: '2026-08-22', color: '#ff8fab' },
+                { title: '채티 2차', start: '2026-08-26', color: '#ff8fab' },
+                { title: '인사동기 단체', start: '2026-08-27', color: '#ff8fab' },
+                { title: '인턴(윤찬성민)', start: '2026-08-28', color: '#ff8fab' },
+                { title: '과 후배 단체', start: '2026-08-30', color: '#ff8fab' },
+                { title: '고등학교 단편영화', start: '2026-09-06', color: '#ff8fab' },
+                { title: '면접스터디', start: '2026-09-09', color: '#ff8fab' },
+                { title: '과 후배(은영)', start: '2026-09-10', color: '#ff8fab' },
+                { title: '중학교 캠프', start: '2026-09-11', color: '#ff8fab' },
+                { title: '합창단 선배(민호)', start: '2026-09-12', color: '#ff8fab' },
+                { title: '중학교 학원', start: '2026-09-13', color: '#ff8fab' },
+                { title: '대학 친구들(웅선세진소현준혁)', start: '2026-09-13', color: '#ff8fab' },
+                { title: '고1', start: '2026-09-14', color: '#ff8fab' },
+                { title: '글앤총 피플 2차', start: '2026-09-15', color: '#ff8fab' },
+                { title: '중2', start: '2026-09-21', color: '#ff8fab' },
+                { title: 'SVP', start: '2026-09-22', color: '#ff8fab' },
+                { title: '합창단 재학생', start: '2026-09-28', color: '#ff8fab' },
+                { title: '합창단 동기', start: '2026-10-03', color: '#ff8fab' },
+                { title: '합창단 선후배(호영상혁)', start: '2026-10-04', color: '#ff8fab' },
+                { title: '대학 후배들(혜린성원)', start: '2026-10-04', color: '#ff8fab' },
+                { title: '대학 여자동기', start: '2026-10-09', color: '#ff8fab' },
+                { title: '고등학교 공연기획', start: '2026-10-10', color: '#ff8fab' },
+                { title: '유생문화동아리 합동청모', start: '2026-10-11', color: '#ff8fab' },
+                { title: '합창단 합동청모', start: '2026-10-18', color: '#ff8fab' },
+                { title: '줄리안', start: '2026-10-19', color: '#ff8fab' },
+
+            ];
+
+            // 2. 진행률 계산 로직  
+            function updateProgress() {  
+                const today = new Date();  
+                today.setHours(0, 0, 0, 0); // 시간 제거하고 날짜만 비교
+
+                const total = events.length;  
+                const completed = events.filter(event => {  
+                    const eventDate = new Date(event.start);  
+                    return eventDate <= today;  
+                }).length;
+
+                const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+                // UI 업데이트  
+                document.getElementById('total-count').innerText = total;  
+                document.getElementById('completed-count').innerText = completed;  
+                const fill = document.getElementById('progress-fill');  
+                fill.style.width = percentage + '%';  
+                fill.innerText = percentage + '%';  
+            }
+
+            // 3. 캘린더 초기화  
+            const calendarEl = document.getElementById('calendar');  
+            const calendar = new FullCalendar.Calendar(calendarEl, {  
+                initialView: 'dayGridMonth',  
+                locale: 'ko',  
+                initialDate: '2026-07-01', // 시작월 설정  
+                validRange: {  
+                    start: '2026-07-01',  
+                    end: '2026-11-01'  
+                },  
+                headerToolbar: {  
+                    left: 'prev,next today',  
+                    center: 'title',  
+                    right: 'dayGridMonth,dayGridWeek'  
+                },  
+                events: events,  
+                eventClick: function(info) {  
+                    alert('일정: ' + info.event.title);  
+                }  
+            });
+
+            calendar.render();  
+            updateProgress();  
+        });  
+    </script>  
+</body>  
+</html>  
