@@ -521,6 +521,33 @@
            모바일
         ================================= */
 
+
+        .color-picker-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #meeting-color {
+            width: 54px;
+            height: 40px;
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .color-preview {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            flex: 0 0 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.12);
+            vertical-align: middle;
+        }
+
         @media (max-width: 600px) {
 
             body {
@@ -742,6 +769,15 @@
                 placeholder="예: 강남역 ○○식당"
             >
 
+        <div class="form-group">
+            <label for="meeting-color">🎨 캘린더 색상</label>
+            <div class="color-picker-wrap">
+                <input type="color" id="meeting-color" value="#ff8fab">
+                <span id="color-preview" class="color-preview"></span>
+                <span class="helper-text" style="margin-top:0;">원하는 색상을 직접 선택하세요.</span>
+            </div>
+        </div>
+
         </div>
 
 
@@ -824,6 +860,11 @@
                 id="detail-location"
             ></div>
 
+        <div class="detail-row">
+            <div class="detail-label">🎨 색상</div>
+            <div class="detail-value" id="detail-color"></div>
+        </div>
+
         </div>
 
 
@@ -868,6 +909,9 @@ document.addEventListener(
         ====================================== */
 
         const STORAGE_KEY =
+            'weddingMeetings_v4';
+
+        const LEGACY_STORAGE_KEY =
             'weddingMeetings_v3';
 
 
@@ -1273,6 +1317,14 @@ document.addEventListener(
            상태
         ====================================== */
 
+        const COLOR_PALETTE = [
+            '#ff8fab', '#ffb3c6', '#ff9f68', '#ffc857',
+            '#a8d08d', '#70c1b3', '#7ac8e8', '#82aaff',
+            '#9b8cff', '#c792ea', '#d4a5a5', '#e6a4b4',
+            '#8ecae6', '#90be6d', '#f9c74f', '#f9844a'
+        ];
+
+
         let meetings =
             loadMeetings();
 
@@ -1281,6 +1333,9 @@ document.addEventListener(
 
         let selectedIndex =
             null;
+
+        let selectedColor =
+            COLOR_PALETTE[0];
 
 
         /* ======================================
@@ -1306,7 +1361,8 @@ document.addEventListener(
         ====================================== */
 
         function normalizeMeeting(
-            meeting
+            meeting,
+            index = 0
         ) {
 
             return {
@@ -1340,6 +1396,10 @@ document.addEventListener(
                         meeting.location ||
                         '미정'
                     ),
+
+                color:
+                    meeting.color ||
+                    COLOR_PALETTE[index % COLOR_PALETTE.length],
 
                 type:
                     'meeting'
@@ -1383,6 +1443,22 @@ document.addEventListener(
 
                     }
 
+                }
+
+                const legacySaved =
+                    localStorage.getItem(
+                        LEGACY_STORAGE_KEY
+                    );
+
+                if (legacySaved) {
+                    const legacyParsed =
+                        JSON.parse(legacySaved);
+
+                    if (Array.isArray(legacyParsed)) {
+                        return legacyParsed.map(
+                            normalizeMeeting
+                        );
+                    }
                 }
 
             } catch (error) {
@@ -1622,12 +1698,21 @@ document.addEventListener(
 
                             const calendarMeetings =
                                 meetings.map(
-                                    meeting => ({
+                                    (meeting, index) => ({
 
                                         ...meeting,
 
                                         color:
-                                            '#ff8fab',
+                                            meeting.color ||
+                                            COLOR_PALETTE[index % COLOR_PALETTE.length],
+
+                                        backgroundColor:
+                                            meeting.color ||
+                                            COLOR_PALETTE[index % COLOR_PALETTE.length],
+
+                                        borderColor:
+                                            meeting.color ||
+                                            COLOR_PALETTE[index % COLOR_PALETTE.length],
 
                                         extendedProps: {
 
@@ -1639,6 +1724,10 @@ document.addEventListener(
 
                                             location:
                                                 meeting.location,
+
+                                            color:
+                                                meeting.color ||
+                                                COLOR_PALETTE[index % COLOR_PALETTE.length],
 
                                             meetingId:
                                                 meeting.id
@@ -1754,6 +1843,19 @@ document.addEventListener(
                     '';
 
 
+                selectedColor =
+                    COLOR_PALETTE[
+                        meetings.length % COLOR_PALETTE.length
+                    ];
+
+                document.getElementById(
+                    'meeting-color'
+                ).value =
+                    selectedColor;
+
+                updateColorPreview();
+
+
                 openModal(
                     'form-modal'
                 );
@@ -1821,6 +1923,20 @@ document.addEventListener(
                     meeting.location === '미정'
                         ? ''
                         : meeting.location;
+
+
+                selectedColor =
+                    meeting.color ||
+                    COLOR_PALETTE[
+                        selectedIndex % COLOR_PALETTE.length
+                    ];
+
+                document.getElementById(
+                    'meeting-color'
+                ).value =
+                    selectedColor;
+
+                updateColorPreview();
 
 
                 closeDetailModal();
@@ -1940,6 +2056,9 @@ document.addEventListener(
                         location:
                             location,
 
+                        color:
+                            selectedColor,
+
                         type:
                             'meeting'
 
@@ -1970,6 +2089,9 @@ document.addEventListener(
 
                         location:
                             location,
+
+                        color:
+                            selectedColor,
 
                         type:
                             'meeting'
@@ -2049,6 +2171,19 @@ document.addEventListener(
             ).textContent =
                 meeting.location ||
                 '미정';
+
+
+            const detailColor =
+                meeting.color ||
+                COLOR_PALETTE[index % COLOR_PALETTE.length];
+
+            document.getElementById(
+                'detail-color'
+            ).innerHTML =
+                '<span class="color-preview" style="background:' +
+                detailColor +
+                '"></span> ' +
+                detailColor;
 
 
             openModal(
@@ -2274,10 +2409,31 @@ document.addEventListener(
         );
 
 
+        function updateColorPreview() {
+
+            const input = document.getElementById('meeting-color');
+            const preview = document.getElementById('color-preview');
+
+            if (!input || !preview) {
+                return;
+            }
+
+            selectedColor = input.value;
+            preview.style.backgroundColor = selectedColor;
+        }
+
+
+        document.getElementById('meeting-color').addEventListener(
+            'input',
+            updateColorPreview
+        );
+
+
         /* ======================================
            최초 실행
         ====================================== */
 
+        updateColorPreview();
         updateProgress();
 
     });
