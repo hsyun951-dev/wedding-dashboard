@@ -1,199 +1,1147 @@
-<!DOCTYPE html>  
-<html lang="ko">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>청첩장 모임 진행률 대시보드</title>  
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>  
-    <style>  
-        :root {  
-            --primary-color: #ff8fab;  
-            --bg-color: #fdfbfb;  
-            --card-bg: #ffffff;  
-        }  
-        body {  
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;  
-            background-color: var(--bg-color);  
-            margin: 0;  
-            padding: 20px;  
-            display: flex;  
-            flex-direction: column;  
-            align-items: center;  
-        }  
-        #dashboard-container {  
-            width: 90%;  
-            max-width: 1100px;  
-            background: var(--card-bg);  
-            padding: 30px;  
-            border-radius: 20px;  
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);  
-        }  
-        h1 {  
-            text-align: center;  
-            color: #444;  
-            margin-bottom: 30px;  
-        }  
-        .progress-section {  
-            text-align: center;  
-            margin-bottom: 40px;  
-            padding: 20px;  
-            background: #fff5f7;  
-            border-radius: 15px;  
-        }  
-        .progress-text {  
-            font-size: 1.2rem;  
-            font-weight: bold;  
-            margin-bottom: 10px;  
-            color: #555;  
-        }  
-        .progress-bar-container {  
-            width: 100%;  
-            height: 25px;  
-            background-color: #e0e0e0;  
-            border-radius: 12.5px;  
-            overflow: hidden;  
-        }  
-        .progress-bar-fill {  
-            height: 100%;  
-            width: 0%;  
-            background: linear-gradient(90deg, #ff8fab 0%, #ffb3c1 100%);  
-            transition: width 1s ease-in-out;  
-            display: flex;  
-            align-items: center;  
-            justify-content: center;  
-            color: white;  
-            font-size: 0.9rem;  
-            font-weight: bold;  
-        }  
-        #calendar { margin-top: 20px; }  
-        .fc-event {  
-            cursor: pointer;  
-            border: none !important;  
-            background-color: var(--primary-color) !important;  
-            padding: 2px 5px;  
-        }  
-        .wedding-day {  
-            background-color: #ff4d6d !important;   
-            border: 2px solid #ff0000 !important;  
-            font-weight: bold !important;  
-            text-align: center !important;  
-            box-shadow: 0 0 10px rgba(255, 77, 109, 0.5);  
-            color: white !important;  
-        }  
-    </style>  
-</head>  
-<body>  
-    <div id="dashboard-container">  
-        <h1>💌 청첩장 모임 진행 현황</h1>  
-        <div class="progress-section">  
-            <div class="progress-text">  
-                모임 일정 <span id="total-count">0</span>건 중 <span id="completed-count">0</span>건 완료  
-            </div>  
-            <div class="progress-bar-container">  
-                <div id="progress-fill" class="progress-bar-fill">0%</div>  
-            </div>  
-        </div>  
-        <div id="calendar"></div>  
-    </div>
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청첩장 모임 진행률 대시보드</title>
 
-    <script>  
-        document.addEventListener('DOMContentLoaded', function() {  
-            // type을 추가하여 'meeting'과 'wedding'을 구분합니다.  
-            const events = [  
-                { title: '대학친구(태규민성)', start: '2026-07-12', color: '#ff8fab', type: 'meeting' },  
-                { title: '몽골 동행', start: '2026-07-12', color: '#ff8fab', type: 'meeting' },  
-                { title: '과 후배(가현성아)', start: '2026-07-17', color: '#ff8fab', type: 'meeting' },  
-                { title: '글앤총 피플', start: '2026-07-22', color: '#ff8fab', type: 'meeting' },  
-                { title: '과 남자동기', start: '2026-07-23', color: '#ff8fab', type: 'meeting' },  
-                { title: '카트 후배(채은)', start: '2026-07-24', color: '#ff8fab', type: 'meeting' },  
-                { title: '카트 수원', start: '2026-07-24', color: '#ff8fab', type: 'meeting' },  
-                { title: '인사동기(재영현수)', start: '2026-07-27', color: '#ff8fab', type: 'meeting' },  
-                { title: '인턴 합동청모', start: '2026-08-01', color: '#ff8fab', type: 'meeting' },  
-                { title: '대학선배(창배)', start: '2026-08-02', color: '#ff8fab', type: 'meeting' },
-                { title: '비상대책회의', start: '2026-08-04', color: '#ff8fab', type: 'meeting' },
-                { title: '채티 1차', start: '2026-08-05', color: '#ff8fab', type: 'meeting' },
-                { title: '미팅동지', start: '2026-08-06', color: '#ff8fab', type: 'meeting' },
-                { title: '채용파트', start: '2026-08-12', color: '#ff8fab', type: 'meeting' },
-                { title: '카트 서울', start: '2026-08-14', color: '#ff8fab', type: 'meeting' },
-                { title: '초등학교', start: '2026-08-15', color: '#ff8fab', type: 'meeting' },
-                { title: '오사클', start: '2026-08-15', color: '#ff8fab', type: 'meeting' },
-                { title: '글앤총 육휴 언니들', start: '2026-08-16', color: '#ff8fab', type: 'meeting' },                
-                { title: '탁구동아리', start: '2026-08-21', color: '#ff8fab', type: 'meeting' },
-                { title: '재수학원', start: '2026-08-22', color: '#ff8fab', type: 'meeting' },
-                { title: '채티 2차', start: '2026-08-26', color: '#ff8fab', type: 'meeting' },
-                { title: '인사동기 단체', start: '2026-08-27', color: '#ff8fab', type: 'meeting' },
-                { title: '인턴(윤찬성민)', start: '2026-08-28', color: '#ff8fab', type: 'meeting' },
-                { title: '과 후배 단체', start: '2026-08-30', color: '#ff8fab', type: 'meeting' },
-                { title: '고등학교 단편영화', start: '2026-09-06', color: '#ff8fab', type: 'meeting' },
-                { title: '면접스터디', start: '2026-09-09', color: '#ff8fab', type: 'meeting' },
-                { title: '과 후배(은영)', start: '2026-09-10', color: '#ff8fab', type: 'meeting' },
-                { title: '중학교 캠프', start: '2026-09-11', color: '#ff8fab', type: 'meeting' },
-                { title: '합창단 선배(민호)', start: '2026-09-12', color: '#ff8fab', type: 'meeting' },
-                { title: '중학교 학원', start: '2026-09-13', color: '#ff8fab', type: 'meeting' },
-                { title: '대학 친구들(웅선세진소현준혁)', start: '2026-09-13', color: '#ff8fab', type: 'meeting' },
-                { title: '고1', start: '2026-09-14', color: '#ff8fab', type: 'meeting' },
-                { title: '글앤총 피플 2차', start: '2026-09-15', color: '#ff8fab', type: 'meeting' },
-                { title: '전 직장 동료', start: '2026-09-16', color: '#ff8fab', type: 'meeting' },
-                { title: '중2', start: '2026-09-21', color: '#ff8fab', type: 'meeting' },
-                { title: 'SVP', start: '2026-09-22', color: '#ff8fab', type: 'meeting' },
-                { title: '합창단 재학생', start: '2026-09-28', color: '#ff8fab', type: 'meeting' },
-                { title: '고2', start: '2026-10-03', color: '#ff8fab', type: 'meeting' },
-                { title: '합창단 동기', start: '2026-10-03', color: '#ff8fab', type: 'meeting' },
-                { title: '합창단 선후배(호영상혁)', start: '2026-10-04', color: '#ff8fab', type: 'meeting' },
-                { title: '대학 후배들(혜린성원)', start: '2026-10-04', color: '#ff8fab', type: 'meeting' },
-                { title: '대학 여자동기', start: '2026-10-09', color: '#ff8fab', type: 'meeting' },
-                { title: '고등학교 공연기획', start: '2026-10-10', color: '#ff8fab', type: 'meeting' },
-                { title: '유생문화동아리 합동청모', start: '2026-10-11', color: '#ff8fab', type: 'meeting' },
-                { title: '합창단 합동청모', start: '2026-10-18', color: '#ff8fab', type: 'meeting' },
-                { title: '줄리안', start: '2026-10-19', color: '#ff8fab', type: 'meeting' },
-   // ⭐ 결혼식 날짜 추가  
-                { title: '❤️ 결혼식 ❤️', start: '2026-11-07', className: 'wedding-day', type: 'wedding' },  
-];
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
-            function updateProgress() {  
-                const today = new Date();  
-                today.setHours(0, 0, 0, 0);
+    <style>
+        :root {
+            --primary-color: #ff8fab;
+            --primary-dark: #ff6f91;
+            --bg-color: #fdfbfb;
+            --card-bg: #ffffff;
+            --text-color: #444;
+        }
 
-                // ⭐ 수정된 로직: type이 'meeting'인 항목만 필터링하여 계산  
-                const meetingEvents = events.filter(event => event.type === 'meeting');  
-                  
-                const total = meetingEvents.length;  
-                const completed = meetingEvents.filter(event => {  
-                    const eventDate = new Date(event.start);  
-                    return eventDate <= today;  
-                }).length;
+        * {
+            box-sizing: border-box;
+        }
 
-                const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont,
+                         system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+        }
 
-                document.getElementById('total-count').innerText = total;  
-                document.getElementById('completed-count').innerText = completed;  
-                const fill = document.getElementById('progress-fill');  
-                fill.style.width = percentage + '%';  
-                fill.innerText = percentage + '%';  
+        #dashboard-container {
+            width: 90%;
+            max-width: 1100px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+            margin: 0 0 30px;
+        }
+
+        /* =========================
+           진행률
+        ========================= */
+
+        .progress-section {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fff5f7;
+            border-radius: 15px;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .progress-detail {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 28px;
+            background-color: #e0e0e0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(
+                90deg,
+                #ff8fab 0%,
+                #ffb3c1 100%
+            );
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* =========================
+           버튼
+        ========================= */
+
+        .button-area {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .add-button {
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .add-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           캘린더
+        ========================= */
+
+        #calendar {
+            margin-top: 10px;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border: none !important;
+            background-color: var(--primary-color) !important;
+            padding: 2px 5px;
+        }
+
+        .wedding-day {
+            background-color: #ff4d6d !important;
+            border: 2px solid #ff0000 !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            box-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+            color: white !important;
+        }
+
+        /* =========================
+           모달
+        ========================= */
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 9px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            background: #eee;
+            color: #555;
+        }
+
+        .save-button {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* =========================
+           상세정보
+        ========================= */
+
+        .detail-row {
+            display: flex;
+            padding: 11px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            width: 80px;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #444;
+        }
+
+        .delete-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 11px;
+            border: none;
+            border-radius: 9px;
+            background: #f1f1f1;
+            color: #d9534f;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* =========================
+           모바일
+        ========================= */
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
             }
 
-            const calendarEl = document.getElementById('calendar');  
-            const calendar = new FullCalendar.Calendar(calendarEl, {  
-                initialView: 'dayGridMonth',  
-                locale: 'ko',  
-                initialDate: new Date(),   
-                validRange: {  
-                    start: '2026-07-01',  
-                    end: '2026-11-08'   
-                },  
-                headerToolbar: {  
-                    left: 'prev,next today',  
-                    center: 'title',  
-                    right: 'dayGridMonth,dayGridWeek'  
-                },  
-                events: events,  
-                eventClick: function(info) {  
-                    alert('일정: ' + info.event.title);  
-                }  
-            });  
-            calendar.render();  
-            updateProgress();  
-        });  
-    </script>  
-</body>  
-</html>  
+            #dashboard-container {
+                width: 100%;
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .progress-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="dashboard-container">
+
+    <h1>💌 청첩장 모임 진행 현황</h1>
+
+    <!-- 진행률 -->
+    <div class="progress-section">
+
+        <div class="progress-text">
+            모임
+            <span id="completed-count">0</span> /
+            <span id="total-count">0</span>건 완료
+        </div>
+
+        <div class="progress-text">
+            인원
+            <span id="completed-people">0</span> /
+            <span id="total-people">0</span>명 완료
+        </div>
+
+        <div class="progress-bar-container">
+            <div id="progress-fill" class="progress-bar-fill">
+                0%
+            </div>
+        </div>
+
+        <div class="progress-detail">
+            ※ 전체 진척률은 <b>인원수 기준</b>으로 계산됩니다.
+        </div>
+
+    </div>
+
+    <!-- 모임 추가 버튼 -->
+    <div class="button-area">
+        <button class="add-button" onclick="openAddModal()">
+            ＋ 모임 추가
+        </button>
+    </div>
+
+    <!-- 캘린더 -->
+    <div id="calendar"></div>
+
+</div>
+
+
+<!-- =========================
+     모임 추가 모달
+========================= -->
+
+<div id="add-modal" class="modal-overlay">
+
+    <div class="modal">
+
+        <h2>💌 모임 추가</h2>
+
+        <div class="form-group">
+            <label for="meeting-title">모임명</label>
+            <input
+                type="text"
+                id="meeting-title"
+                placeholder="예: 대학친구"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="meeting-date">날짜</label>
+            <input
+                type="date"
+                id="meeting-date"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="meeting-people">인원수</label>
+            <input
+                type="number"
+                id="meeting-people"
+                min="0"
+                placeholder="예: 8"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="meeting-location">장소</label>
+            <input
+                type="text"
+                id="meeting-location"
+                placeholder="예: 강남역 ○○식당"
+            >
+        </div>
+
+        <div class="modal-buttons">
+
+            <button
+                class="cancel-button"
+                onclick="closeAddModal()"
+            >
+                취소
+            </button>
+
+            <button
+                class="save-button"
+                onclick="addMeeting()"
+            >
+                추가하기
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     모임 상세정보 모달
+========================= -->
+
+<div id="detail-modal" class="modal-overlay">
+
+    <div class="modal">
+
+        <h2 id="detail-title">모임 정보</h2>
+
+        <div class="detail-row">
+            <div class="detail-label">📅 날짜</div>
+            <div class="detail-value" id="detail-date"></div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">👥 인원</div>
+            <div class="detail-value" id="detail-people"></div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">📍 장소</div>
+            <div class="detail-value" id="detail-location"></div>
+        </div>
+
+        <button
+            id="delete-button"
+            class="delete-button"
+            onclick="deleteSelectedMeeting()"
+        >
+            이 모임 삭제
+        </button>
+
+        <div class="modal-buttons">
+            <button
+                class="cancel-button"
+                onclick="closeDetailModal()"
+            >
+                닫기
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    /*
+     * ==========================================
+     * 기존 모임 데이터
+     * ==========================================
+     */
+
+    const defaultEvents = [
+
+        { title: '대학친구(태규민성)', start: '2026-07-12', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '몽골 동행', start: '2026-07-12', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '과 후배(가현성아)', start: '2026-07-17', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '글앤총 피플', start: '2026-07-22', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '과 남자동기', start: '2026-07-23', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '카트 후배(채은)', start: '2026-07-24', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '카트 수원', start: '2026-07-24', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '인사동기(재영현수)', start: '2026-07-27', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '인턴 합동청모', start: '2026-08-01', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '대학선배(창배)', start: '2026-08-02', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '비상대책회의', start: '2026-08-04', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '채티 1차', start: '2026-08-05', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '미팅동지', start: '2026-08-06', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '채용파트', start: '2026-08-12', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '카트 서울', start: '2026-08-14', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '초등학교', start: '2026-08-15', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '오사클', start: '2026-08-15', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '글앤총 육휴 언니들', start: '2026-08-16', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '탁구동아리', start: '2026-08-21', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '재수학원', start: '2026-08-22', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '채티 2차', start: '2026-08-26', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '인사동기 단체', start: '2026-08-27', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '인턴(윤찬성민)', start: '2026-08-28', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '과 후배 단체', start: '2026-08-30', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '고등학교 단편영화', start: '2026-09-06', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '면접스터디', start: '2026-09-09', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '과 후배(은영)', start: '2026-09-10', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '중학교 캠프', start: '2026-09-11', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '합창단 선배(민호)', start: '2026-09-12', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '중학교 학원', start: '2026-09-13', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '대학 친구들(웅선세진소현준혁)', start: '2026-09-13', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '고1', start: '2026-09-14', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '글앤총 피플 2차', start: '2026-09-15', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '전 직장 동료', start: '2026-09-16', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '중2', start: '2026-09-21', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: 'SVP', start: '2026-09-22', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '합창단 재학생', start: '2026-09-28', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '고2', start: '2026-10-03', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '합창단 동기', start: '2026-10-03', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '합창단 선후배(호영상혁)', start: '2026-10-04', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '대학 후배들(혜린성원)', start: '2026-10-04', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '대학 여자동기', start: '2026-10-09', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '고등학교 공연기획', start: '2026-10-10', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '유생문화동아리 합동청모', start: '2026-10-11', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '합창단 합동청모', start: '2026-10-18', attendees: 0, location: '미정', type: 'meeting' },
+
+        { title: '줄리안', start: '2026-10-19', attendees: 0, location: '미정', type: 'meeting' }
+
+    ];
+
+
+    /*
+     * ==========================================
+     * 결혼식
+     * ==========================================
+     */
+
+    const weddingEvent = {
+        title: '❤️ 결혼식 ❤️',
+        start: '2026-11-07',
+        className: 'wedding-day',
+        type: 'wedding'
+    };
+
+
+    /*
+     * ==========================================
+     * localStorage에서 저장된 모임 불러오기
+     * ==========================================
+     */
+
+    let savedEvents = JSON.parse(
+        localStorage.getItem('weddingMeetings') || 'null'
+    );
+
+    let events;
+
+    if (savedEvents) {
+        events = savedEvents;
+    } else {
+        events = defaultEvents;
+    }
+
+
+    /*
+     * ==========================================
+     * FullCalendar
+     * ==========================================
+     */
+
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+
+        initialView: 'dayGridMonth',
+
+        locale: 'ko',
+
+        initialDate: new Date(),
+
+        validRange: {
+            start: '2026-07-01',
+            end: '2026-11-08'
+        },
+
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek'
+        },
+
+        events: function(fetchInfo, successCallback) {
+
+            successCallback([
+                ...events,
+                weddingEvent
+            ]);
+
+        },
+
+        eventClick: function(info) {
+
+            if (info.event.extendedProps.type === 'wedding') {
+                alert('💍 2026년 11월 7일 결혼식 💍');
+                return;
+            }
+
+            showMeetingDetail(info.event);
+
+        }
+
+    });
+
+
+    calendar.render();
+
+
+    /*
+     * ==========================================
+     * 진행률 계산
+     *
+     * 인원수 기준
+     * ==========================================
+     */
+
+    function updateProgress() {
+
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+
+
+        const meetingEvents =
+            events.filter(event => event.type === 'meeting');
+
+
+        const totalMeetings =
+            meetingEvents.length;
+
+
+        const completedMeetings =
+            meetingEvents.filter(event => {
+
+                const eventDate =
+                    new Date(event.start);
+
+                return eventDate <= today;
+
+            }).length;
+
+
+        const totalPeople =
+            meetingEvents.reduce(
+                (sum, event) =>
+                    sum + Number(event.attendees || 0),
+                0
+            );
+
+
+        const completedPeople =
+            meetingEvents
+                .filter(event => {
+
+                    const eventDate =
+                        new Date(event.start);
+
+                    return eventDate <= today;
+
+                })
+                .reduce(
+                    (sum, event) =>
+                        sum + Number(event.attendees || 0),
+                    0
+                );
+
+
+        const percentage =
+            totalPeople === 0
+                ? 0
+                : Math.round(
+                    (completedPeople / totalPeople) * 100
+                );
+
+
+        document.getElementById(
+            'total-count'
+        ).innerText = totalMeetings;
+
+
+        document.getElementById(
+            'completed-count'
+        ).innerText = completedMeetings;
+
+
+        document.getElementById(
+            'total-people'
+        ).innerText = totalPeople;
+
+
+        document.getElementById(
+            'completed-people'
+        ).innerText = completedPeople;
+
+
+        const fill =
+            document.getElementById('progress-fill');
+
+
+        fill.style.width =
+            percentage + '%';
+
+
+        fill.innerText =
+            percentage + '%';
+
+    }
+
+
+    /*
+     * ==========================================
+     * 모임 추가 모달
+     * ==========================================
+     */
+
+    window.openAddModal = function() {
+
+        document.getElementById(
+            'add-modal'
+        ).style.display = 'flex';
+
+
+        // 기본값 초기화
+        document.getElementById(
+            'meeting-title'
+        ).value = '';
+
+
+        document.getElementById(
+            'meeting-date'
+        ).value = '';
+
+
+        document.getElementById(
+            'meeting-people'
+        ).value = '';
+
+
+        document.getElementById(
+            'meeting-location'
+        ).value = '';
+
+
+        document.getElementById(
+            'meeting-title'
+        ).focus();
+
+    };
+
+
+    window.closeAddModal = function() {
+
+        document.getElementById(
+            'add-modal'
+        ).style.display = 'none';
+
+    };
+
+
+    /*
+     * ==========================================
+     * 실제 모임 추가
+     * ==========================================
+     */
+
+    window.addMeeting = function() {
+
+        const title =
+            document.getElementById(
+                'meeting-title'
+            ).value.trim();
+
+
+        const date =
+            document.getElementById(
+                'meeting-date'
+            ).value;
+
+
+        const people =
+            Number(
+                document.getElementById(
+                    'meeting-people'
+                ).value
+            );
+
+
+        const location =
+            document.getElementById(
+                'meeting-location'
+            ).value.trim();
+
+
+        // 입력값 검사
+
+        if (!title) {
+
+            alert('모임명을 입력해주세요.');
+
+            return;
+
+        }
+
+
+        if (!date) {
+
+            alert('날짜를 선택해주세요.');
+
+            return;
+
+        }
+
+
+        if (people < 0 || isNaN(people)) {
+
+            alert('인원수를 확인해주세요.');
+
+            return;
+
+        }
+
+
+        /*
+         * 새로운 일정 생성
+         */
+
+        const newMeeting = {
+
+            title: title,
+
+            start: date,
+
+            attendees: people,
+
+            location:
+                location || '미정',
+
+            type: 'meeting',
+
+            color: '#ff8fab'
+
+        };
+
+
+        events.push(newMeeting);
+
+
+        /*
+         * localStorage 저장
+         */
+
+        localStorage.setItem(
+            'weddingMeetings',
+            JSON.stringify(events)
+        );
+
+
+        /*
+         * 캘린더 새로고침
+         */
+
+        calendar.refetchEvents();
+
+
+        /*
+         * 진행률 갱신
+         */
+
+        updateProgress();
+
+
+        /*
+         * 모달 닫기
+         */
+
+        closeAddModal();
+
+
+        alert('모임이 추가되었습니다! 💌');
+
+    };
+
+
+    /*
+     * ==========================================
+     * 상세정보
+     * ==========================================
+     */
+
+    let selectedEvent = null;
+
+
+    function showMeetingDetail(event) {
+
+        selectedEvent = event;
+
+
+        document.getElementById(
+            'detail-title'
+        ).innerText = event.title;
+
+
+        document.getElementById(
+            'detail-date'
+        ).innerText =
+            formatDate(event.start);
+
+
+        document.getElementById(
+            'detail-people'
+        ).innerText =
+            (event.extendedProps.attendees || 0)
+            + '명';
+
+
+        document.getElementById(
+            'detail-location'
+        ).innerText =
+            event.extendedProps.location || '미정';
+
+
+        document.getElementById(
+            'detail-modal'
+        ).style.display = 'flex';
+
+    }
+
+
+    window.closeDetailModal = function() {
+
+        document.getElementById(
+            'detail-modal'
+        ).style.display = 'none';
+
+        selectedEvent = null;
+
+    };
+
+
+    /*
+     * ==========================================
+     * 모임 삭제
+     * ==========================================
+     */
+
+    window.deleteSelectedMeeting = function() {
+
+        if (!selectedEvent) {
+            return;
+        }
+
+
+        const title =
+            selectedEvent.title;
+
+
+        const confirmed =
+            confirm(
+                `"${title}" 모임을 삭제할까요?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        const targetIndex =
+            events.findIndex(event =>
+
+                event.title === selectedEvent.title &&
+                event.start ===
+                    formatDateForCompare(
+                        selectedEvent.start
+                    )
+
+            );
+
+
+        if (targetIndex !== -1) {
+
+            events.splice(
+                targetIndex,
+                1
+            );
+
+        }
+
+
+        localStorage.setItem(
+            'weddingMeetings',
+            JSON.stringify(events)
+        );
+
+
+        calendar.refetchEvents();
+
+
+        updateProgress();
+
+
+        closeDetailModal();
+
+    };
+
+
+    /*
+     * ==========================================
+     * 날짜 표시
+     * ==========================================
+     */
+
+    function formatDate(date) {
+
+        const year =
+            date.getFullYear();
+
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, '0');
+
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, '0');
+
+
+        return `${year}년 ${month}월 ${day}일`;
+
+    }
+
+
+    function formatDateForCompare(date) {
+
+        const year =
+            date.getFullYear();
+
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, '0');
+
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, '0');
+
+
+        return `${year}-${month}-${day}`;
+
+    }
+
+
+    /*
+     * ==========================================
+     * 모달 바깥 클릭하면 닫기
+     * ==========================================
+     */
+
+    document
+        .getElementById('add-modal')
+        .addEventListener(
+            'click',
+            function(event) {
+
+                if (event.target === this) {
+                    closeAddModal();
+                }
+
+            }
+        );
+
+
+    document
+        .getElementById('detail-modal')
+        .addEventListener(
+            'click',
+            function(event) {
+
+                if (event.target === this) {
+                    closeDetailModal();
+                }
+
+            }
+        );
+
+
+    /*
+     * ==========================================
+     * 최초 진행률 계산
+     * ==========================================
+     */
+
+    updateProgress();
+
+});
+
+</script>
+
+</body>
+</html>
